@@ -85,7 +85,7 @@ if os.path.exists(checklist_path):
                 checklist_data = json.loads(f.read())
                 checklist = checklist_data["checklist"]
             reload_preview()
-        except:
+        except Exception as e:
             print("Failed")
 
     def watch_changes():
@@ -93,6 +93,7 @@ if os.path.exists(checklist_path):
         while True:
             current_time = os.path.getmtime(str(checklist_path))
             if last_time != current_time:
+                time.sleep(0.5)
                 update_checklist()
                 last_time = current_time
 

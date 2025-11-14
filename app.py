@@ -1,10 +1,11 @@
 import lime
 from lime.util import *
 import lime.widgets as widgets
-import sys, os
+import sys, os, subprocess, shutil, json
+from pathlib import Path
 sys.path.append(os.path.dirname(__file__))
 
-from checklist import TransparentButton
+from checklist import TransparentButton, checklist
 
 #- Entry -#
 
@@ -33,10 +34,51 @@ def register_main():
 
 #- Window Rendering -#
 
+def run_if_exists(cmd):
+    if shutil.which(cmd[0]) is None:
+        return False
+
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    
+    if result.stderr:
+        return False
+
+    return result.stdout
+
+
+checklist_path = Path.home() / ".checklist.json"
+
+def check_checklist(index):
+    checklist_dat = {}
+    with open(checklist_path, 'r') as f:
+        checklist_dat = json.load(f)
+
+    if checklist[index] in checklist_dat["checked"]: return
+    checklist_dat["checked"].append(checklist[index])
+
+    with open(checklist_path, "w") as f:
+        json.dump(checklist_dat, f)
+
 @lime.init("main")
 def render_main(win: lime.Window):
     #- Section 1 -#
+    def secure(_):
+        if (res := run_if_exists(["ufw", "enable"])):
+            if "Firewall is active" in res:
+                check_checklist(0)
+
+        if (res := run_if_exists(["apt", "get", "update", "&&", "apt", "get", "upgrade"])):
+            check_checklist(2)
+            check_checklist(3)
+
+        if (res := run_if_exists(["apt", "get", "dist-update"])):
+            check_checklist(4)
+
+        if (res := run_if_exists(["passwd", "-l", "root"])):
+            check_checklist(7)
+
     basic_security = widgets.Button("Basic Security", 295)
+    basic_security.on_click(secure)
     win.add_next(basic_security)
 
     #- Section 2 -#
