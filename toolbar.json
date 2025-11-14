@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "bar": [
+    {
+      "type": "module",
+      "path": "checklist.py",
+      "author": "Rishabh"
+    },
+    {
+      "type": "module",
+      "path": "app.py",
+      "author": "Rishabh"
+    }
+  ],
+  "colors": {
+    "primary": "(185, 85, 255)",
+    "border": "(0, 0, 0, 0)"
+  },
+  "entry": "main"
+}
